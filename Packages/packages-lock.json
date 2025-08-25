@@ -55,7 +55,7 @@
       "dependencies": {}
     },
     "com.unity.burst": {
-      "version": "1.8.23",
+      "version": "1.8.24",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -158,7 +158,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.scriptablebuildpipeline": {
-      "version": "2.4.0",
+      "version": "2.4.1",
       "depth": 2,
       "source": "registry",
       "dependencies": {
