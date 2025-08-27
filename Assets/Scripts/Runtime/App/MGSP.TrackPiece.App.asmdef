@@ -1,0 +1,21 @@
+{
+    "name": "MGSP.TrackPiece.App",
+    "rootNamespace": "MGSP.TrackPiece.App",
+    "references": [
+        "GUID:304192ed7a962174fb5f66ab1b86b703",
+        "GUID:733ed80df6218654dbd1d27ee194a0ec",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:88be65f96b86746888c927a5c8ff3534"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
