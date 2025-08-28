@@ -56,7 +56,4 @@ MonoBehaviour:
   - ParticleSystem Utils
   - TetGen
   - Texture Decompression BC
-  - Texture Decompression DXT
-  - Texture Decompression ETC
-  - Texture Decompression Crunch
   - WebGPU Support
