@@ -1,4 +1,3 @@
-using Alchemy.Inspector;
 using R3;
 using TMPro;
 using UnityEngine;
@@ -6,7 +5,7 @@ using UnityEngine.UI;
 
 namespace MGSP.TrackPiece.Presentation.UIWidgets
 {
-    public sealed class ConfirmDialogModalView : MonoBehaviour
+    public sealed class ConfirmDialogView : MonoBehaviour
     {
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;

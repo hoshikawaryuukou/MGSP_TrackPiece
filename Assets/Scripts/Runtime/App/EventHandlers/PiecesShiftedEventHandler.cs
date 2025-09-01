@@ -8,17 +8,17 @@ namespace MGSP.TrackPiece.App.EventHandlers
 {
     public sealed class PiecesShiftedEventHandler 
     {
-        private readonly GameStageView stageView;
+        private readonly GameStageView gameStageView;
 
         [Inject]
-        public PiecesShiftedEventHandler(GameStageView stageView)
+        public PiecesShiftedEventHandler(GameStageView gameStageView)
         {
-            this.stageView = stageView;
+            this.gameStageView = gameStageView;
         }
 
         public async UniTask Handle(PiecesShiftedEvent evt)
         {
-            await stageView.Shift(GameConfigTable.GetConfig(evt.Level).Track);
+            await gameStageView.Shift(GameConfigTable.GetConfig(evt.Level).Track);
         }
     }
 }

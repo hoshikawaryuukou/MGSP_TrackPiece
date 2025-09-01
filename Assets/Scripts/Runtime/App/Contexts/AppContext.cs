@@ -15,13 +15,13 @@ namespace MGSP.TrackPiece.App.Contexts
         {
             builder.RegisterComponentInHierarchy<GameInfoView>();
             builder.RegisterComponentInHierarchy<GameMenuView>();
-            builder.RegisterComponentInHierarchy<GameResultBannerView>();
-            builder.RegisterComponentInHierarchy<ConfirmDialogModalView>();
+            builder.RegisterComponentInHierarchy<GameResultView>();
+            builder.RegisterComponentInHierarchy<ConfirmDialogView>();
             builder.RegisterComponentInHierarchy<GameStageView>();
             builder.RegisterComponentInHierarchy<CellViewSelector>();
 
             builder.RegisterInstance(new GamePlayStore());
-            builder.RegisterInstance(new GameUIStore());
+            builder.RegisterInstance(new GameMenuStore());
 
             builder.Register<GameStartedEventHandler>(Lifetime.Singleton);
             builder.Register<GameEndedEventHandler>(Lifetime.Singleton);

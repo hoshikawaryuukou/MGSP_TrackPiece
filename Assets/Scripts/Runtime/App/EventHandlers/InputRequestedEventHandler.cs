@@ -8,28 +8,28 @@ namespace MGSP.TrackPiece.App.EventHandlers
 {
     public sealed class InputRequestedEventHandler
     {
-        private readonly GameUIStore gameUIStore;
-        private readonly GamePlayStore gameStore;
+        private readonly GameMenuStore gameMenuStore;
+        private readonly GamePlayStore gamePlayStore;
         private readonly CellViewSelector cellViewSelector;
 
         [Inject]
-        public InputRequestedEventHandler(GameUIStore gameUIStore, GamePlayStore gameStore, CellViewSelector cellViewSelector)
+        public InputRequestedEventHandler(GameMenuStore gameMenuStore, GamePlayStore gamePlayStore, CellViewSelector cellViewSelector)
         {
-            this.gameUIStore = gameUIStore;
-            this.gameStore = gameStore;
+            this.gameMenuStore = gameMenuStore;
+            this.gamePlayStore = gamePlayStore;
             this.cellViewSelector = cellViewSelector;
         }
 
-        public void Handle(InputRequestedEvent evt)
+        public void Handle(InputRequestedEvent _)
         {
             var disposables = new CompositeDisposable();
             cellViewSelector.CellViewSelected
-                .Where(_ => gameUIStore.IsInteractableRP.CurrentValue)
+                .Where(_ => gameMenuStore.IsInteractableRP.CurrentValue)
                 .Select(cellView => cellView.positionIndex)
-                .TakeUntil(gameStore.CancelTriggered)
+                .TakeUntil(gamePlayStore.CancelTriggered)
                 .Subscribe(positionIndex =>
                 {
-                    gameStore.Place(positionIndex);
+                    gamePlayStore.Place(positionIndex);
                     disposables.Dispose();
                 })
                 .AddTo(disposables);

@@ -12,30 +12,30 @@ namespace MGSP.TrackPiece.App.Presenters
 {
     public sealed class GameMenuPresenter : IInitializable, IDisposable
     {
-        private readonly GameUIStore gameUIStore;
-        private readonly GamePlayStore gameStore;
-        private readonly GameMenuView menuView;
-        private readonly GameInfoView infoView;
-        private readonly ConfirmDialogModalView confirmDialogModalView;
+        private readonly GameMenuStore gameMenuStore;
+        private readonly GamePlayStore gamePlayStore;
+        private readonly GameMenuView gameMenuView;
+        private readonly GameInfoView gameInfoView;
+        private readonly ConfirmDialogView confirmDialogModalView;
 
         private readonly CompositeDisposable disposables = new();
 
         [Inject]
-        public GameMenuPresenter(GameUIStore gameUIStore, GamePlayStore gameStore, GameMenuView menuView, GameInfoView infoView, ConfirmDialogModalView confirmDialogModalView)
+        public GameMenuPresenter(GameMenuStore gameMenuStore, GamePlayStore gamePlayStore, GameMenuView gameMenuView, GameInfoView gameInfoView, ConfirmDialogView confirmDialogModalView)
         {
-            this.gameUIStore = gameUIStore;
-            this.gameStore = gameStore;
-            this.menuView = menuView;
-            this.infoView = infoView;
+            this.gameMenuStore = gameMenuStore;
+            this.gamePlayStore = gamePlayStore;
+            this.gameMenuView = gameMenuView;
+            this.gameInfoView = gameInfoView;
             this.confirmDialogModalView = confirmDialogModalView;
         }
 
         void IInitializable.Initialize()
         {
-            menuView.RestartRequested.Subscribe(_ => OnRestartRequested()).AddTo(disposables);
-            menuView.InfoRequested.Subscribe(_ => OnInfoRequested()).AddTo(disposables);
-            menuView.BoardSizeChangeRequested.Subscribe(_ => OnBoardSizeChangeRequested()).AddTo(disposables);
-            gameUIStore.LevelRP.Subscribe(OnLevelChanged).AddTo(disposables);
+            gameMenuView.RestartRequested.Subscribe(_ => OnRestartRequested()).AddTo(disposables);
+            gameMenuView.InfoRequested.Subscribe(_ => OnInfoRequested()).AddTo(disposables);
+            gameMenuView.BoardSizeChangeRequested.Subscribe(_ => OnBoardSizeChangeRequested()).AddTo(disposables);
+            gameMenuStore.LevelRP.Subscribe(OnLevelChanged).AddTo(disposables);
         }
 
         void IDisposable.Dispose()
@@ -45,28 +45,28 @@ namespace MGSP.TrackPiece.App.Presenters
 
         private void OnRestartRequested()
         {
-            gameStore.CreateNewGame(gameUIStore.LevelRP.CurrentValue);
+            gamePlayStore.CreateNewGame(gameMenuStore.LevelRP.CurrentValue);
         }
 
         private void OnInfoRequested()
         {
             var dialogDisposables = new CompositeDisposable();
-            infoView.CloseRequested
+            gameInfoView.CloseRequested
                 .Subscribe(_ =>
                 {
-                    infoView.Hide();
+                    gameInfoView.Hide();
                     dialogDisposables.Dispose();
-                    gameUIStore.SetInteractable(true);
+                    gameMenuStore.SetInteractable(true);
                 })
                 .AddTo(dialogDisposables);
 
-            gameUIStore.SetInteractable(false);
-            infoView.Show();
+            gameMenuStore.SetInteractable(false);
+            gameInfoView.Show();
         }
 
         private void OnBoardSizeChangeRequested()
         {
-            var newSize = gameUIStore.LevelRP.CurrentValue == GameLevel._4x4 ? GameLevel._6x6 : GameLevel._4x4;
+            var newSize = gameMenuStore.LevelRP.CurrentValue == GameLevel._4x4 ? GameLevel._6x6 : GameLevel._4x4;
             var confirmMessage = newSize switch
             {
                 GameLevel._4x4 => GameUIConfig.ConfirmRestartWith4x4Message,
@@ -80,8 +80,8 @@ namespace MGSP.TrackPiece.App.Presenters
                 {
                     confirmDialogModalView.Hide();
                     dialogDisposables.Dispose();
-                    gameUIStore.SetInteractable(true);
-                    gameStore.CreateNewGame(newSize);
+                    gameMenuStore.SetInteractable(true);
+                    gamePlayStore.CreateNewGame(newSize);
                 })
                 .AddTo(dialogDisposables);
 
@@ -90,11 +90,11 @@ namespace MGSP.TrackPiece.App.Presenters
                 {
                     confirmDialogModalView.Hide();
                     dialogDisposables.Dispose();
-                    gameUIStore.SetInteractable(true);
+                    gameMenuStore.SetInteractable(true);
                 })
                 .AddTo(dialogDisposables);
 
-            gameUIStore.SetInteractable(false);
+            gameMenuStore.SetInteractable(false);
             confirmDialogModalView.SetMessage(confirmMessage);
             confirmDialogModalView.Show();
         }
@@ -107,7 +107,7 @@ namespace MGSP.TrackPiece.App.Presenters
                 GameLevel._6x6 => "6x6",
                 _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
             };
-            menuView.SetBoardSizeText(message);
+            gameMenuView.SetBoardSizeText(message);
         }
     }
 }

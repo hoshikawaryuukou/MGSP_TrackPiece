@@ -11,7 +11,7 @@ namespace MGSP.TrackPiece.App.Presenters
 {
     public sealed class GameStagePresenter : IInitializable, IDisposable
     {
-        private readonly GamePlayStore gameStore;
+        private readonly GamePlayStore gamePlayStore;
         private readonly GameStartedEventHandler gameStartedEventHandler;
         private readonly GameEndedEventHandler gameEndedEventHandler;
         private readonly InputRequestedEventHandler inputRequestedEventHandler;
@@ -22,9 +22,9 @@ namespace MGSP.TrackPiece.App.Presenters
         private readonly CompositeDisposable disposables = new();
 
         [Inject]
-        public GameStagePresenter(GamePlayStore gameStore, GameStartedEventHandler gameStartedEventHandler, GameEndedEventHandler gameEndedEventHandler, InputRequestedEventHandler inputRequestedEventHandler, InputInvalidEventHandler inputInvalidEventHandler, PiecePlacedEventHandler piecePlacedEventHandler, PiecesShiftedEventHandler piecesShiftedEventHandler)
+        public GameStagePresenter(GamePlayStore gamePlayStore, GameStartedEventHandler gameStartedEventHandler, GameEndedEventHandler gameEndedEventHandler, InputRequestedEventHandler inputRequestedEventHandler, InputInvalidEventHandler inputInvalidEventHandler, PiecePlacedEventHandler piecePlacedEventHandler, PiecesShiftedEventHandler piecesShiftedEventHandler)
         {
-            this.gameStore = gameStore;
+            this.gamePlayStore = gamePlayStore;
             this.gameStartedEventHandler = gameStartedEventHandler;
             this.gameEndedEventHandler = gameEndedEventHandler;
             this.inputRequestedEventHandler = inputRequestedEventHandler;
@@ -35,7 +35,7 @@ namespace MGSP.TrackPiece.App.Presenters
 
         void IInitializable.Initialize()
         {
-            gameStore.IsDirtyRP
+            gamePlayStore.IsDirtyRP
                 .Where(isDirty => isDirty == true)
                 .Subscribe(_ => Run().Forget())
                 .AddTo(disposables);
@@ -48,7 +48,7 @@ namespace MGSP.TrackPiece.App.Presenters
 
         private async UniTask Run()
         {
-            var events = gameStore.DequeueAllEvents();
+            var events = gamePlayStore.DequeueAllEvents();
 
             for (int i = 0; i < events.Count; i++)
             {

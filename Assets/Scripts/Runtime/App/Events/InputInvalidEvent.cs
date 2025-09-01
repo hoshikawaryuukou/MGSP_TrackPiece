@@ -3,12 +3,12 @@ namespace MGSP.TrackPiece.App.Events
     public sealed class InputInvalidEvent : IGameStageEvent
     {
         public string Reason { get; }
-        public int AttemptedPosition { get; }
+        public int AttemptedPositionIndex { get; }
 
-        public InputInvalidEvent(string reason, int attemptedPosition)
+        public InputInvalidEvent(string reason, int attemptedPositionIndex)
         {
             Reason = reason;
-            AttemptedPosition = attemptedPosition;
+            AttemptedPositionIndex = attemptedPositionIndex;
         }
     }
 }

@@ -3,12 +3,12 @@ using R3;
 
 namespace MGSP.TrackPiece.App.Stores
 {
-    public sealed class GameUIStore
+    public sealed class GameMenuStore
     {
         private readonly ReactiveProperty<GameLevel> levelRP = new(GameLevel._4x4);
-        private readonly ReactiveProperty<bool> isInteractableRP = new(true);
-
         public ReadOnlyReactiveProperty<GameLevel> LevelRP => levelRP;
+
+        private readonly ReactiveProperty<bool> isInteractableRP = new(true);
         public ReadOnlyReactiveProperty<bool> IsInteractableRP => isInteractableRP;
 
         public void SetLevel(GameLevel level)

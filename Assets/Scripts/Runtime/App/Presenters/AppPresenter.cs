@@ -7,17 +7,17 @@ namespace MGSP.TrackPiece.App.Presenters
 {
     public sealed class AppPresenter : IPostStartable 
     {
-        private readonly GamePlayStore gameStore;
+        private readonly GamePlayStore gamePlayStore;
 
         [Inject]
-        public AppPresenter(GamePlayStore gameStore)
+        public AppPresenter(GamePlayStore gamePlayStore)
         {
-            this.gameStore = gameStore;
+            this.gamePlayStore = gamePlayStore;
         }
 
         void IPostStartable.PostStart()
         {
-            gameStore.CreateNewGame(GameLevel._4x4);
+            gamePlayStore.CreateNewGame(GameLevel._4x4);
         }
     }
 }

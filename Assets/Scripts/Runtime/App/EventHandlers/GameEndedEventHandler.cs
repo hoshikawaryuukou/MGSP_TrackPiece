@@ -9,12 +9,12 @@ namespace MGSP.TrackPiece.App.EventHandlers
 {
     public sealed class GameEndedEventHandler 
     {
-        private readonly GameResultBannerView resultBannerView;
+        private readonly GameResultView gameResultView;
 
         [Inject]
-        public GameEndedEventHandler(GameResultBannerView resultBannerView)
+        public GameEndedEventHandler(GameResultView gameResultView)
         {
-            this.resultBannerView = resultBannerView;
+            this.gameResultView = gameResultView;
         }
 
         public void Handle(GameEndedEvent evt)
@@ -28,7 +28,7 @@ namespace MGSP.TrackPiece.App.EventHandlers
                 _ => throw new InvalidOperationException("Unexpected game result."),
             };
 
-            resultBannerView.Show(resultMessage);
+            gameResultView.Show(resultMessage);
         }
     }
 }

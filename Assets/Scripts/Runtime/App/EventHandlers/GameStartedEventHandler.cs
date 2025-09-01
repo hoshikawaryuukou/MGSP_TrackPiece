@@ -9,24 +9,24 @@ namespace MGSP.TrackPiece.App.EventHandlers
 {
     public sealed class GameStartedEventHandler
     {
-        private readonly GameUIStore gameUIStore;
-        private readonly GameResultBannerView resultBannerView;
-        private readonly GameStageView stageView;
+        private readonly GameMenuStore gameMenuStore;
+        private readonly GameResultView gameResultView;
+        private readonly GameStageView gameStageView;
 
         [Inject]
-        public GameStartedEventHandler(GameResultBannerView resultBannerView, GameStageView stageView, GameUIStore gameUIStore)
+        public GameStartedEventHandler(GameMenuStore gameMenuStore, GameResultView gameResultView, GameStageView gameStageView)
         {
-            this.resultBannerView = resultBannerView;
-            this.stageView = stageView;
-            this.gameUIStore = gameUIStore;
+            this.gameMenuStore = gameMenuStore;
+            this.gameResultView = gameResultView;
+            this.gameStageView = gameStageView;
         }
 
         public void Handle(GameStartedEvent evt)
         {
-            gameUIStore.SetLevel(evt.Level);
+            gameResultView.Hide();
 
-            resultBannerView.Hide();
-            stageView.Arrange(GameConfigTable.GetConfig(evt.Level).LevelSize);
+            gameMenuStore.SetLevel(evt.Level);
+            gameStageView.Arrange(GameConfigTable.GetConfig(evt.Level).LevelSize);
         }
     }
 }
