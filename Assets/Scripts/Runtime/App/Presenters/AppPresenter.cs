@@ -1,5 +1,5 @@
-using MGSP.TrackPiece.App.Stores;
-using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Services;
+using MGSP.TrackPiece.Stores;
 using VContainer;
 using VContainer.Unity;
 

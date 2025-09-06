@@ -1,98 +1,71 @@
-using MGSP.TrackPiece.App.Events;
-using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Services;
 using R3;
 using System.Collections.Generic;
+using System.Threading;
+using VContainer;
 
-namespace MGSP.TrackPiece.App.Stores
+namespace MGSP.TrackPiece.Stores
 {
     public sealed class GamePlayStore
     {
-        private readonly ReactiveProperty<bool> isDirtyRP = new(false);
-        private readonly Subject<Unit> cancelTriggered = new();
-        private readonly Queue<IGameStageEvent> eventQueue = new();
-        private GameLevel currentLevel = GameLevel._4x4;
-        private Game game = null;
+        private readonly IGameService gameService;
 
-        public ReadOnlyReactiveProperty<bool> IsDirtyRP => isDirtyRP;
-        public Observable<Unit> CancelTriggered => cancelTriggered;
+        private readonly ReactiveProperty<bool> isInteractableRP = new(true);
+        private readonly Queue<IGameStageEvent> eventQueue = new();
+        private CancellationTokenSource cts = new();
+
+        public ReadOnlyReactiveProperty<bool> IsInteractableRP => isInteractableRP;
+        public CancellationToken CancellationToken => cts.Token;
+
+        [Inject]
+        public GamePlayStore(IGameService gameService)
+        {
+            this.gameService = gameService;
+        }
+
+        public void SetInteractable(bool interactable)
+        {
+            isInteractableRP.Value = interactable;
+        }
 
         public void CreateNewGame(GameLevel level)
         {
-            cancelTriggered.OnNext(Unit.Default);
+            cts.Cancel();
+            cts.Dispose();
+            cts = new CancellationTokenSource();
 
-            currentLevel = level;
-            game = level switch
-            {
-                GameLevel._4x4 => GameBuilder.Create4x4Game(),
-                GameLevel._6x6 => GameBuilder.Create6x6Game(),
-                _ => throw new System.InvalidOperationException("Unsupported board size."),
-            };
-
-            eventQueue.Enqueue(new GameStartedEvent(level, game.GetActivePlayerId()));
-            eventQueue.Enqueue(new InputRequestedEvent(game.GetActivePlayerId()));
-            NotifyEventsAvailable();
+            var events = gameService.CreateNewGame(level);
+            AddEvents(events);
         }
 
         public void Place(int positionIndex)
         {
-            try
-            {
-                game.Place(positionIndex);
-                eventQueue.Enqueue(new PiecePlacedEvent(game.GetActivePlayerId(), positionIndex));
-
-                game.Shift();
-                eventQueue.Enqueue(new PiecesShiftedEvent(currentLevel));
-
-                game.Evaluate();
-
-                var result = game.GetResult();
-                if (result == GameResult.None)
-                {
-                    game.SwitchPlayer();
-                    eventQueue.Enqueue(new InputRequestedEvent(game.GetActivePlayerId()));
-                }
-                else
-                {
-                    eventQueue.Enqueue(new GameEndedEvent(result));
-                }
-            }
-            catch (System.Exception ex)
-            {
-                eventQueue.Enqueue(new InputInvalidEvent(ex.Message, positionIndex));
-                eventQueue.Enqueue(new InputRequestedEvent(game.GetActivePlayerId()));
-            }
-
-            NotifyEventsAvailable();
+            var events = gameService.Place(positionIndex);
+            AddEvents(events);
         }
 
-        public IList<IGameStageEvent> DequeueAllEvents()
+        public IGameStageEvent ReadEvent()
         {
-            var events = new List<IGameStageEvent>();
-
-            while (eventQueue.Count > 0)
+            if (eventQueue.Count > 0)
             {
-                events.Add(eventQueue.Dequeue());
+                return eventQueue.Dequeue();
             }
-
-            if (events.Count > 0)
+            else
             {
-                isDirtyRP.Value = false;
+                return null;
             }
-
-            return events;
         }
 
         public void ClearAllEvents()
         {
             eventQueue.Clear();
-            isDirtyRP.Value = false;
         }
 
-        private void NotifyEventsAvailable()
+        private void AddEvents(IList<IGameStageEvent> events)
         {
-            if (eventQueue.Count > 0)
+            for (int i = 0; i < events.Count; i++)
             {
-                isDirtyRP.Value = true;
+                eventQueue.Enqueue(events[i]);
             }
         }
     }

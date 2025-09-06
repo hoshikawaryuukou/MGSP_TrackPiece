@@ -1,9 +1,25 @@
 using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Shared;
 using NUnit.Framework;
 using System;
 
 namespace MGSP.TrackPiece.Tests.Domain
 {
+    public static class GameTestUtils
+    {
+        public static Game CreateGameWithGameLevelConfig(GameLevelConfig gameLevelConfig)
+        {
+            var gameConfig = new GameConfig(gameLevelConfig.BoardSizeLength, gameLevelConfig.Track, gameLevelConfig.WinningLines);
+            return Game.CreateNew(gameConfig);
+        }
+
+        public static Game CreateGameCustomWithGameLevelConfig(GameLevelConfig gameLevelConfig, PlayerId[] initialBoard, PlayerId startingPlayer)
+        {
+            var gameConfig = new GameConfig(gameLevelConfig.BoardSizeLength, gameLevelConfig.Track, gameLevelConfig.WinningLines);
+            return Game.CreateCustom(gameConfig, initialBoard, startingPlayer);
+        }
+    }
+
     public class GameTests
     {
         private Game game;
@@ -11,7 +27,7 @@ namespace MGSP.TrackPiece.Tests.Domain
         [SetUp]
         public void SetUp()
         {
-            game = GameBuilder.Create4x4Game();
+            game = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config4x4);
         }
 
         [Test]
@@ -19,7 +35,7 @@ namespace MGSP.TrackPiece.Tests.Domain
         {
             // Assert
             Assert.AreEqual(PlayerId.Player1, game.GetActivePlayerId());
-            Assert.AreEqual(GameResult.None, game.GetResult());
+            Assert.AreEqual(GameStatus.None, game.GetStatus());
 
             var board = game.GetBoard();
             Assert.AreEqual(16, board.Length);
@@ -39,11 +55,11 @@ namespace MGSP.TrackPiece.Tests.Domain
             initialBoard[10] = PlayerId.Player1;
 
             // Act
-            var customGame = GameBuilder.CreateCustomGame(GameConfigTable.GetConfig(GameLevel._4x4), initialBoard, PlayerId.Player2);
+            var customGame = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, initialBoard, PlayerId.Player2);
 
             // Assert
             Assert.AreEqual(PlayerId.Player2, customGame.GetActivePlayerId());
-            Assert.AreEqual(GameResult.None, customGame.GetResult());
+            Assert.AreEqual(GameStatus.None, customGame.GetStatus());
 
             var board = customGame.GetBoard();
             Assert.AreEqual(PlayerId.Player1, board[0]);
@@ -56,7 +72,7 @@ namespace MGSP.TrackPiece.Tests.Domain
         public void Constructor_WithNullInitialBoard_ShouldThrowException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => Game.CreateCustom(GameConfigTable.GetConfig(GameLevel._4x4), null, PlayerId.Player1));
+            Assert.Throws<ArgumentNullException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, null, PlayerId.Player1));
         }
 
         [Test]
@@ -66,7 +82,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             var invalidBoard = new PlayerId[15]; // 錯誤的大小
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Game.CreateCustom(GameConfigTable.GetConfig(GameLevel._4x4), invalidBoard, PlayerId.Player1));
+            Assert.Throws<ArgumentException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, invalidBoard, PlayerId.Player1));
         }
 
         [Test]
@@ -76,14 +92,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             var validBoard = new PlayerId[16];
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Game.CreateCustom(GameConfigTable.GetConfig(GameLevel._4x4), validBoard, PlayerId.None));
-        }
-
-        [Test]
-        public void CreateNew_WithNullConfig_ShouldThrowException()
-        {
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => Game.CreateNew(null));
+            Assert.Throws<ArgumentException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, validBoard, PlayerId.None));
         }
 
         [Test]
@@ -97,18 +106,25 @@ namespace MGSP.TrackPiece.Tests.Domain
         }
 
         [Test]
+        public void CreateNew_WithNullConfig_ShouldThrowException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => Game.CreateNew(null));
+        }
+
+        [Test]
         public void CreateNew_ShouldInitializeCorrectly()
         {
             // Act - 測試 4x4
-            var game4x4 = Game.CreateNew(GameConfigTable.GetConfig(GameLevel._4x4));
+            var game4x4 = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config4x4);
             Assert.AreEqual(PlayerId.Player1, game4x4.GetActivePlayerId());
-            Assert.AreEqual(GameResult.None, game4x4.GetResult());
+            Assert.AreEqual(GameStatus.None, game4x4.GetStatus());
             Assert.AreEqual(16, game4x4.GetBoard().Length);
 
             // Act - 測試 6x6
-            var game6x6 = Game.CreateNew(GameConfigTable.GetConfig(GameLevel._6x6));
+            var game6x6 = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config6x6);
             Assert.AreEqual(PlayerId.Player1, game6x6.GetActivePlayerId());
-            Assert.AreEqual(GameResult.None, game6x6.GetResult());
+            Assert.AreEqual(GameStatus.None, game6x6.GetStatus());
             Assert.AreEqual(36, game6x6.GetBoard().Length);
         }
 
@@ -126,6 +142,92 @@ namespace MGSP.TrackPiece.Tests.Domain
             // Assert - 確保返回的是不同的物件，且互不影響
             Assert.AreNotSame(board1, board2);
             Assert.AreEqual(PlayerId.None, board2[1]);
+        }
+
+        [Test]
+        public void GetInteractablePositions_WithEmptyBoard_ShouldReturnAllTrue()
+        {
+            // Act
+            var interactablePositions = game.GetInteractablePositions();
+
+            // Assert
+            Assert.AreEqual(16, interactablePositions.Length);
+            for (int i = 0; i < interactablePositions.Length; i++)
+            {
+                Assert.IsTrue(interactablePositions[i], $"Position {i} should be interactable");
+            }
+        }
+
+        [Test]
+        public void GetInteractablePositions_WithSomePiecesPlaced_ShouldReturnCorrectResult()
+        {
+            // Arrange - 在一些位置放置棋子
+            game.Place(0);  // Player1
+            game.SwitchPlayer();
+            game.Place(5);  // Player2
+            game.SwitchPlayer();
+            game.Place(10); // Player1
+
+            // Act
+            var interactablePositions = game.GetInteractablePositions();
+
+            // Assert
+            Assert.AreEqual(16, interactablePositions.Length);
+            Assert.IsFalse(interactablePositions[0], "Position 0 should not be interactable");
+            Assert.IsFalse(interactablePositions[5], "Position 5 should not be interactable");
+            Assert.IsFalse(interactablePositions[10], "Position 10 should not be interactable");
+
+            // 驗證其他位置仍然可互動
+            for (int i = 0; i < interactablePositions.Length; i++)
+            {
+                if (i != 0 && i != 5 && i != 10)
+                {
+                    Assert.IsTrue(interactablePositions[i], $"Position {i} should be interactable");
+                }
+            }
+        }
+
+        [Test]
+        public void GetInteractablePositions_WithFullBoard_ShouldReturnAllFalse()
+        {
+            // Arrange - 創建滿棋盤
+            var fullBoard = new PlayerId[16];
+            for (int i = 0; i < fullBoard.Length; i++)
+            {
+                fullBoard[i] = (i % 2 == 0) ? PlayerId.Player1 : PlayerId.Player2;
+            }
+
+            var customGame = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, fullBoard, PlayerId.Player1);
+
+            // Act
+            var interactablePositions = customGame.GetInteractablePositions();
+
+            // Assert
+            Assert.AreEqual(16, interactablePositions.Length);
+            for (int i = 0; i < interactablePositions.Length; i++)
+            {
+                Assert.IsFalse(interactablePositions[i], $"Position {i} should not be interactable when board is full");
+            }
+        }
+
+        [Test]
+        public void GetInteractablePositions_ShouldReturnNewArrayEachTime()
+        {
+            // Arrange
+            game.Place(0);
+
+            // Act
+            var interactablePositions1 = game.GetInteractablePositions();
+            var interactablePositions2 = game.GetInteractablePositions();
+
+            // Assert - 確保返回的是不同的陣列物件
+            Assert.AreNotSame(interactablePositions1, interactablePositions2);
+
+            // 但內容應該相同
+            for (int i = 0; i < interactablePositions1.Length; i++)
+            {
+                Assert.AreEqual(interactablePositions1[i], interactablePositions2[i]);
+            }
         }
 
         [Test]
@@ -161,7 +263,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             initialBoard[0] = PlayerId.Player1;
             initialBoard[1] = PlayerId.Player2;
 
-            game = GameBuilder.CreateCustomGame(GameConfigTable.GetConfig(GameLevel._4x4), initialBoard, PlayerId.Player1);
+            game = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, initialBoard, PlayerId.Player1);
 
             // Act
             game.Shift();
@@ -182,13 +284,13 @@ namespace MGSP.TrackPiece.Tests.Domain
             winningBoard[2] = PlayerId.Player1;
             winningBoard[3] = PlayerId.Player1;
 
-            game = GameBuilder.CreateCustomGame(GameConfigTable.GetConfig(GameLevel._4x4), winningBoard, PlayerId.Player1);
+            game = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, winningBoard, PlayerId.Player1);
 
             // Act
             game.Evaluate();
 
             // Assert - 僅驗證 Evaluate 方法有正確呼叫並更新結果，具體判斷邏輯由 WinChecker 負責測試
-            Assert.AreNotEqual(GameResult.None, game.GetResult());
+            Assert.AreNotEqual(GameStatus.None, game.GetStatus());
         }
 
         [Test]
@@ -196,7 +298,7 @@ namespace MGSP.TrackPiece.Tests.Domain
         {
             // Arrange & Act - 模擬完整的遊戲流程
             Assert.AreEqual(PlayerId.Player1, game.GetActivePlayerId());
-            Assert.AreEqual(GameResult.None, game.GetResult());
+            Assert.AreEqual(GameStatus.None, game.GetStatus());
 
             // Player1 放置棋子
             game.Place(0);
@@ -211,7 +313,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             // 評估遊戲狀態
             game.Evaluate();
             // 在這個簡單例子中應該還沒有結果
-            Assert.AreEqual(GameResult.None, game.GetResult());
+            Assert.AreEqual(GameStatus.None, game.GetStatus());
 
             // 切換玩家
             game.SwitchPlayer();

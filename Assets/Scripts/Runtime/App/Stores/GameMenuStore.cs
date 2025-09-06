@@ -1,24 +1,23 @@
-using MGSP.TrackPiece.Domain;
 using R3;
 
-namespace MGSP.TrackPiece.App.Stores
+namespace MGSP.TrackPiece.Stores
 {
     public sealed class GameMenuStore
     {
-        private readonly ReactiveProperty<GameLevel> levelRP = new(GameLevel._4x4);
-        public ReadOnlyReactiveProperty<GameLevel> LevelRP => levelRP;
+        private readonly ReactiveProperty<bool> infoOnRP = new(false);
+        private readonly Subject<bool> levelChangeRequested = new();
 
-        private readonly ReactiveProperty<bool> isInteractableRP = new(true);
-        public ReadOnlyReactiveProperty<bool> IsInteractableRP => isInteractableRP;
+        public ReadOnlyReactiveProperty<bool> InfoOnRP => infoOnRP;
+        public Observable<bool> LevelChangeRequested => levelChangeRequested;
 
-        public void SetLevel(GameLevel level)
+        public void SetInfoOn(bool isOn)
         {
-            levelRP.Value = level;
+            infoOnRP.Value = isOn;
         }
 
-        public void SetInteractable(bool interactable)
+        public void RequestLevelChange()
         {
-            isInteractableRP.Value = interactable;
+            levelChangeRequested.OnNext(true);
         }
     }
 }

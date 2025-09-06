@@ -1,0 +1,17 @@
+{
+    "name": "MGSP.TrackPiece.Services",
+    "rootNamespace": "MGSP.TrackPiece.Services",
+    "references": [
+        "GUID:304192ed7a962174fb5f66ab1b86b703",
+        "GUID:2a1aa97c36f25a54eb8779627dcd7655"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

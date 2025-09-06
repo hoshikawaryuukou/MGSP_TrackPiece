@@ -1,7 +1,7 @@
 using R3;
 using UnityEngine;
 
-namespace MGSP.TrackPiece.Presentation.StageWidgets.Cells
+namespace MGSP.TrackPiece.Presentation.StageWidgets
 {
     public sealed class CellViewSelector : MonoBehaviour
     {

@@ -1,4 +1,5 @@
 using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Domain.Compoments;
 using NUnit.Framework;
 using System;
 
@@ -14,22 +15,8 @@ namespace MGSP.TrackPiece.Tests.Domain
         [SetUp]
         public void SetUp()
         {
-            piecePlacer = new PiecePlacer(BoardSize);
+            piecePlacer = new PiecePlacer();
             board = new PlayerId[BoardSize];
-        }
-
-        [Test]
-        public void Constructor_WithInvalidBoardSize_ThrowsArgumentException()
-        {
-            Assert.Throws<ArgumentException>(() => new PiecePlacer(0));
-            Assert.Throws<ArgumentException>(() => new PiecePlacer(-1));
-        }
-
-        [Test]
-        public void Constructor_WithValidBoardSize_DoesNotThrow()
-        {
-            Assert.DoesNotThrow(() => new PiecePlacer(16));
-            Assert.DoesNotThrow(() => new PiecePlacer(36));
         }
 
         [Test]
@@ -54,24 +41,13 @@ namespace MGSP.TrackPiece.Tests.Domain
         }
 
         [Test]
-        public void Place_WithNegativePositionIndex_ThrowsArgumentOutOfRangeException()
+        [TestCase(-1)]
+        [TestCase(BoardSize)]
+        [TestCase(BoardSize + 1)]
+        public void Place_WithOutOfRangePositionIndex_ThrowsArgumentOutOfRangeException(int positionIndex)
         {
             Assert.Throws<ArgumentOutOfRangeException>(() =>
-                piecePlacer.Place(board, -1, PlayerId.Player1));
-        }
-
-        [Test]
-        public void Place_WithPositionIndexEqualToBoardSize_ThrowsArgumentOutOfRangeException()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                piecePlacer.Place(board, BoardSize, PlayerId.Player1));
-        }
-
-        [Test]
-        public void Place_WithPositionIndexGreaterThanBoardSize_ThrowsArgumentOutOfRangeException()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                piecePlacer.Place(board, BoardSize + 1, PlayerId.Player1));
+                piecePlacer.Place(board, positionIndex, PlayerId.Player1));
         }
 
         [Test]
@@ -91,22 +67,6 @@ namespace MGSP.TrackPiece.Tests.Domain
         {
             Assert.Throws<ArgumentException>(() =>
                 piecePlacer.Place(board, 0, PlayerId.None));
-        }
-
-        [Test]
-        public void Place_WithWrongBoardSize_ThrowsArgumentException()
-        {
-            // Test with smaller board
-            var smallBoard = new PlayerId[8];
-            var exception = Assert.Throws<ArgumentException>(() =>
-                piecePlacer.Place(smallBoard, 0, PlayerId.Player1));
-            Assert.That(exception.Message, Does.Contain($"Board must have exactly {BoardSize} positions"));
-
-            // Test with larger board
-            var largeBoard = new PlayerId[32];
-            exception = Assert.Throws<ArgumentException>(() =>
-                piecePlacer.Place(largeBoard, 0, PlayerId.Player1));
-            Assert.That(exception.Message, Does.Contain($"Board must have exactly {BoardSize} positions"));
         }
 
         [Test]

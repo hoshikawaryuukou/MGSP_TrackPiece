@@ -1,19 +1,17 @@
 using System;
 
-namespace MGSP.TrackPiece.Domain
+namespace MGSP.TrackPiece.Domain.Compoments
 {
     public sealed class WinChecker
     {
         private readonly int[][] winningLines;
-        private readonly int lineLength;
 
-        public WinChecker(int[][] winningLines, int lineLength)
+        public WinChecker(int[][] winningLines)
         {
             this.winningLines = winningLines ?? throw new ArgumentNullException(nameof(winningLines));
-            this.lineLength = lineLength;
         }
 
-        public GameResult CheckWin(PlayerId[] board)
+        public GameStatus CheckWin(PlayerId[] board)
         {
             if (board == null)
                 throw new ArgumentNullException(nameof(board));
@@ -39,20 +37,20 @@ namespace MGSP.TrackPiece.Domain
             }
 
             if (p1Win && p2Win)
-                return GameResult.DoubleWin;
+                return GameStatus.DoubleWin;
             else if (p1Win)
-                return GameResult.Player1Win;
+                return GameStatus.Player1Win;
             else if (p2Win)
-                return GameResult.Player2Win;
+                return GameStatus.Player2Win;
             else if (IsBoardFull(board))
-                return GameResult.Draw;
+                return GameStatus.Draw;
             else
-                return GameResult.None;
+                return GameStatus.None;
         }
 
         private bool IsLineComplete(PlayerId[] board, int[] line, PlayerId playerId)
         {
-            for (int i = 1; i < lineLength; i++)
+            for (int i = 1; i < line.Length; i++)
             {
                 if (board[line[i]] != playerId)
                     return false;

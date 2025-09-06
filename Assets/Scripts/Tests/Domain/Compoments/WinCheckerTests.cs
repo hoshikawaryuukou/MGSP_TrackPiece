@@ -1,5 +1,7 @@
-using NUnit.Framework;
 using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Domain.Compoments;
+using MGSP.TrackPiece.Shared;
+using NUnit.Framework;
 using System;
 
 namespace MGSP.TrackPiece.Tests.Domain
@@ -13,17 +15,14 @@ namespace MGSP.TrackPiece.Tests.Domain
         [SetUp]
         public void Setup()
         {
-            var config4x4 = GameConfigTable.GetConfig(GameLevel._4x4);
-            var config6x6 = GameConfigTable.GetConfig(GameLevel._6x6);
-
-            winChecker4x4 = new WinChecker(config4x4.WinningLines, 4);
-            winChecker6x6 = new WinChecker(config6x6.WinningLines, 6);
+            winChecker4x4 = new WinChecker(GameLevelConfigTable.Config4x4.WinningLines);
+            winChecker6x6 = new WinChecker(GameLevelConfigTable.Config6x6.WinningLines);
         }
 
         [Test]
         public void Constructor_WithNullWinningLines_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => new WinChecker(null, 4));
+            Assert.Throws<ArgumentNullException>(() => new WinChecker(null));
         }
 
         [Test]
@@ -36,8 +35,8 @@ namespace MGSP.TrackPiece.Tests.Domain
         public void CheckWin_EmptyBoard_ReturnsNone()
         {
             var board = new PlayerId[16];
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.None, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.None, status);
         }
 
         [Test]
@@ -50,8 +49,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[2] = PlayerId.Player1;
             board[3] = PlayerId.Player1;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.Player1Win, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player1Win, status);
         }
 
         [Test]
@@ -64,8 +63,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[8] = PlayerId.Player2;
             board[12] = PlayerId.Player2;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.Player2Win, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player2Win, status);
         }
 
         [Test]
@@ -78,8 +77,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[10] = PlayerId.Player1;
             board[15] = PlayerId.Player1;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.Player1Win, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player1Win, status);
         }
 
         [Test]
@@ -92,8 +91,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[9] = PlayerId.Player2;
             board[12] = PlayerId.Player2;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.Player2Win, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player2Win, status);
         }
 
         [Test]
@@ -111,8 +110,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             drawBoard[12] = PlayerId.Player2; drawBoard[13] = PlayerId.Player1;
             drawBoard[14] = PlayerId.Player2; drawBoard[15] = PlayerId.Player1;
 
-            var result = winChecker4x4.CheckWin(drawBoard);
-            Assert.AreEqual(GameResult.Draw, result);
+            var status = winChecker4x4.CheckWin(drawBoard);
+            Assert.AreEqual(GameStatus.Draw, status);
         }
 
         [Test]
@@ -131,8 +130,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[6] = PlayerId.Player2;
             board[7] = PlayerId.Player2;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.DoubleWin, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.DoubleWin, status);
         }
 
         [Test]
@@ -145,8 +144,8 @@ namespace MGSP.TrackPiece.Tests.Domain
                 board[i] = PlayerId.Player1;
             }
 
-            var result = winChecker6x6.CheckWin(board);
-            Assert.AreEqual(GameResult.Player1Win, result);
+            var status = winChecker6x6.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player1Win, status);
         }
 
         [Test]
@@ -159,8 +158,8 @@ namespace MGSP.TrackPiece.Tests.Domain
                 board[i * 6] = PlayerId.Player2;
             }
 
-            var result = winChecker6x6.CheckWin(board);
-            Assert.AreEqual(GameResult.Player2Win, result);
+            var status = winChecker6x6.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player2Win, status);
         }
 
         [Test]
@@ -173,8 +172,8 @@ namespace MGSP.TrackPiece.Tests.Domain
                 board[i * 7] = PlayerId.Player1;
             }
 
-            var result = winChecker6x6.CheckWin(board);
-            Assert.AreEqual(GameResult.Player1Win, result);
+            var status = winChecker6x6.CheckWin(board);
+            Assert.AreEqual(GameStatus.Player1Win, status);
         }
 
         [Test]
@@ -187,8 +186,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[2] = PlayerId.Player1;
             // board[3] 留空
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.None, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.None, status);
         }
 
         [Test]
@@ -201,8 +200,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[2] = PlayerId.Player1;
             board[3] = PlayerId.Player1;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.None, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.None, status);
         }
 
         [Test]
@@ -215,8 +214,8 @@ namespace MGSP.TrackPiece.Tests.Domain
             board[2] = PlayerId.Player1;
             board[3] = PlayerId.Player1;
 
-            var result = winChecker4x4.CheckWin(board);
-            Assert.AreEqual(GameResult.None, result);
+            var status = winChecker4x4.CheckWin(board);
+            Assert.AreEqual(GameStatus.None, status);
         }
     }
 }

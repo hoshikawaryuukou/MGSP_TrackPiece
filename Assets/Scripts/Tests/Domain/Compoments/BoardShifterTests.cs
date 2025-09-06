@@ -1,4 +1,5 @@
 using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Domain.Compoments;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -175,23 +176,6 @@ namespace MGSP.TrackPiece.Tests.Domain
             var result = boardShifter.Shift(board);
 
             Assert.AreNotSame(board, result, "Should return a new board instance");
-        }
-
-        [Test]
-        public void Shift_WithGameConfigTrack_WorksCorrectly()
-        {
-            // 使用真實的遊戲配置軌道
-            var gameConfig = GameConfigTable.GetConfig(GameLevel._4x4);
-            var shifter = new BoardShifter(gameConfig.Track);
-
-            var testBoard = new PlayerId[BoardSize];
-            testBoard[0] = PlayerId.Player1;
-
-            var result = shifter.Shift(testBoard);
-
-            // 根據 4x4 遊戲配置，位置 0 的棋子應該移動到位置 4
-            Assert.AreEqual(PlayerId.Player1, result[4]);
-            Assert.AreEqual(PlayerId.None, result[0]);
         }
     }
 }

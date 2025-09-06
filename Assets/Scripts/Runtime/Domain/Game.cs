@@ -1,22 +1,11 @@
+using MGSP.TrackPiece.Domain.Compoments;
 using System;
 
 namespace MGSP.TrackPiece.Domain
 {
-    public enum PlayerId
-    {
-        None = 0,
-        Player1 = 1,
-        Player2 = 2
-    }
+    public enum PlayerId { None, Player1, Player2 }
 
-    public enum GameResult
-    {
-        None,
-        Player1Win,
-        Player2Win,
-        DoubleWin,
-        Draw
-    }
+    public enum GameStatus { None, Player1Win, Player2Win, DoubleWin, Draw }
 
     public sealed class Game
     {
@@ -25,9 +14,30 @@ namespace MGSP.TrackPiece.Domain
         private readonly PiecePlacer piecePlacer;
         private PlayerId[] board;
         private PlayerId activePlayerId;
-        private GameResult result;
+        private GameStatus status;
 
         private Game(GameConfig config, PlayerId[] initialBoard, PlayerId startingPlayer)
+        {
+            piecePlacer = new PiecePlacer();
+            boardShifter = new BoardShifter(config.Track);
+            winChecker = new WinChecker(config.WinningLines);
+
+            board = initialBoard;
+            activePlayerId = startingPlayer;
+            status = GameStatus.None;
+        }
+
+        public static Game CreateNew(GameConfig config)
+        {
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+
+            var emptyBoard = new PlayerId[config.BoardSize];
+
+            return new Game(config, emptyBoard, PlayerId.Player1);
+        }
+
+        public static Game CreateCustom(GameConfig config, PlayerId[] initialBoard, PlayerId startingPlayer)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
@@ -41,26 +51,6 @@ namespace MGSP.TrackPiece.Domain
             if (startingPlayer == PlayerId.None)
                 throw new ArgumentException("Starting player cannot be None.", nameof(startingPlayer));
 
-            boardShifter = new BoardShifter(config.Track);
-            winChecker = new WinChecker(config.WinningLines, config.LevelSize);
-            piecePlacer = new PiecePlacer(config.BoardSize);
-
-            board = initialBoard;
-            activePlayerId = startingPlayer;
-            result = GameResult.None;
-        }
-
-        public static Game CreateNew(GameConfig config)
-        {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
-
-            var emptyBoard = new PlayerId[config.BoardSize];
-            return new Game(config, emptyBoard, PlayerId.Player1);
-        }
-
-        public static Game CreateCustom(GameConfig config, PlayerId[] initialBoard, PlayerId startingPlayer)
-        {
             return new Game(config, initialBoard, startingPlayer);
         }
 
@@ -69,14 +59,24 @@ namespace MGSP.TrackPiece.Domain
             return (PlayerId[])board.Clone();
         }
 
+        public bool[] GetInteractablePositions()
+        {
+            var interactable = new bool[board.Length];
+            for (int i = 0; i < board.Length; i++)
+            {
+                interactable[i] = board[i] == PlayerId.None;
+            }
+            return interactable;
+        }
+
         public PlayerId GetActivePlayerId()
         {
             return activePlayerId;
         }
 
-        public GameResult GetResult()
+        public GameStatus GetStatus()
         {
-            return result;
+            return status;
         }
 
         public void Place(int positionIndex)
@@ -91,7 +91,7 @@ namespace MGSP.TrackPiece.Domain
 
         public void Evaluate()
         {
-            result = winChecker.CheckWin(board);
+            status = winChecker.CheckWin(board);
         }
 
         public void SwitchPlayer()
