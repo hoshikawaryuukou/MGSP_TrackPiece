@@ -1,10 +1,10 @@
 namespace MGSP.TrackPiece.Services
 {
-    public sealed class GameStartedEvent : IGameStageEvent
+    public sealed class RoundStartedEvent : IGameStageEvent
     {
         public GameLevel Level { get; }
 
-        public GameStartedEvent(GameLevel level)
+        public RoundStartedEvent(GameLevel level)
         {
             Level = level;
         }

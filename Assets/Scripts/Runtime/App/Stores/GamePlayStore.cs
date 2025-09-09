@@ -1,71 +1,85 @@
+using Cysharp.Threading.Tasks;
+using MGSP.TrackPiece.App.Stores;
 using MGSP.TrackPiece.Services;
 using R3;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using VContainer;
 
 namespace MGSP.TrackPiece.Stores
 {
-    public sealed class GamePlayStore
+    public enum GameStatus
+    {
+        None,
+        ResponseWait,
+        StageDisplay,
+        PlayerAction,
+    }
+
+    public sealed class GamePlayStore : IDisposable
     {
         private readonly IGameService gameService;
+        private readonly GameStageEventEmitter eventEmitter;
 
-        private readonly ReactiveProperty<bool> isInteractableRP = new(true);
-        private readonly Queue<IGameStageEvent> eventQueue = new();
+        private readonly ReactiveProperty<GameLevel> levelRP = new(GameLevel._4x4);
+        private readonly ReactiveProperty<GameStatus> statusRP = new(GameStatus.None);
         private CancellationTokenSource cts = new();
 
-        public ReadOnlyReactiveProperty<bool> IsInteractableRP => isInteractableRP;
-        public CancellationToken CancellationToken => cts.Token;
+        public ReadOnlyReactiveProperty<GameLevel> LevelRP => levelRP;
+        public ReadOnlyReactiveProperty<GameStatus> StatusRP => statusRP;
+        public GameLevelConfig LevelConfig => GameLevelConfigTable.Table[levelRP.Value];
 
         [Inject]
-        public GamePlayStore(IGameService gameService)
+        public GamePlayStore(IGameService gameService, GameStageEventEmitter eventEmitter)
         {
             this.gameService = gameService;
+            this.eventEmitter = eventEmitter;
         }
 
-        public void SetInteractable(bool interactable)
+        void IDisposable.Dispose()
         {
-            isInteractableRP.Value = interactable;
-        }
-
-        public void CreateNewGame(GameLevel level)
-        {
-            cts.Cancel();
             cts.Dispose();
+        }
+
+        public void SetLevel(GameLevel level)
+        {
+            levelRP.Value = level;
+        }
+
+        public async UniTask CreateNewGame(GameLevel level)
+        {
+            cts?.Cancel();
             cts = new CancellationTokenSource();
 
-            var events = gameService.CreateNewGame(level);
-            AddEvents(events);
+            statusRP.Value = GameStatus.ResponseWait;
+
+            var response = await gameService.CreateNewGame(level);
+            await ProcessEvents(response, cts.Token);
         }
 
-        public void Place(int positionIndex)
+        public async UniTask Place(int positionIndex)
         {
-            var events = gameService.Place(positionIndex);
-            AddEvents(events);
+            statusRP.Value = GameStatus.ResponseWait;
+
+            var response = await gameService.PlacePiece(positionIndex);
+            await ProcessEvents(response, cts.Token);
         }
 
-        public IGameStageEvent ReadEvent()
+        private async UniTask ProcessEvents(IReadOnlyList<IGameStageEvent> events, CancellationToken cancellationToken)
         {
-            if (eventQueue.Count > 0)
+            statusRP.Value = GameStatus.StageDisplay;
+
+            await eventEmitter.Emit(events, cancellationToken);
+
+            var lastEvent = events[events.Count - 1];
+            if (lastEvent is RoundEndedEvent)
             {
-                return eventQueue.Dequeue();
+                statusRP.Value = GameStatus.None;
             }
             else
             {
-                return null;
-            }
-        }
-
-        public void ClearAllEvents()
-        {
-            eventQueue.Clear();
-        }
-
-        private void AddEvents(IList<IGameStageEvent> events)
-        {
-            for (int i = 0; i < events.Count; i++)
-            {
-                eventQueue.Enqueue(events[i]);
+                statusRP.Value = GameStatus.PlayerAction;
             }
         }
     }

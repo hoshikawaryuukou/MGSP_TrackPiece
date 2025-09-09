@@ -1,25 +1,9 @@
 using MGSP.TrackPiece.Domain;
-using MGSP.TrackPiece.Shared;
 using NUnit.Framework;
 using System;
 
 namespace MGSP.TrackPiece.Tests.Domain
 {
-    public static class GameTestUtils
-    {
-        public static Game CreateGameWithGameLevelConfig(GameLevelConfig gameLevelConfig)
-        {
-            var gameConfig = new GameConfig(gameLevelConfig.BoardSizeLength, gameLevelConfig.Track, gameLevelConfig.WinningLines);
-            return Game.CreateNew(gameConfig);
-        }
-
-        public static Game CreateGameCustomWithGameLevelConfig(GameLevelConfig gameLevelConfig, PlayerId[] initialBoard, PlayerId startingPlayer)
-        {
-            var gameConfig = new GameConfig(gameLevelConfig.BoardSizeLength, gameLevelConfig.Track, gameLevelConfig.WinningLines);
-            return Game.CreateCustom(gameConfig, initialBoard, startingPlayer);
-        }
-    }
-
     public class GameTests
     {
         private Game game;
@@ -27,7 +11,7 @@ namespace MGSP.TrackPiece.Tests.Domain
         [SetUp]
         public void SetUp()
         {
-            game = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config4x4);
+            game = Game.CreateNew(GameTestUtils.Config4x4);
         }
 
         [Test]
@@ -55,7 +39,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             initialBoard[10] = PlayerId.Player1;
 
             // Act
-            var customGame = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, initialBoard, PlayerId.Player2);
+            var customGame = Game.CreateCustom(GameTestUtils.Config4x4, initialBoard, PlayerId.Player2);
 
             // Assert
             Assert.AreEqual(PlayerId.Player2, customGame.GetActivePlayerId());
@@ -72,7 +56,8 @@ namespace MGSP.TrackPiece.Tests.Domain
         public void Constructor_WithNullInitialBoard_ShouldThrowException()
         {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, null, PlayerId.Player1));
+            Assert.Throws<ArgumentNullException>(() => Game.CreateCustom(GameTestUtils.Config4x4, null, PlayerId.Player1));
+
         }
 
         [Test]
@@ -82,7 +67,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             var invalidBoard = new PlayerId[15]; // 錯誤的大小
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, invalidBoard, PlayerId.Player1));
+            Assert.Throws<ArgumentException>(() => Game.CreateCustom(GameTestUtils.Config4x4, invalidBoard, PlayerId.Player1));
         }
 
         [Test]
@@ -92,7 +77,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             var validBoard = new PlayerId[16];
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, validBoard, PlayerId.None));
+            Assert.Throws<ArgumentException>(() => Game.CreateCustom(GameTestUtils.Config4x4, validBoard, PlayerId.None));
         }
 
         [Test]
@@ -116,13 +101,13 @@ namespace MGSP.TrackPiece.Tests.Domain
         public void CreateNew_ShouldInitializeCorrectly()
         {
             // Act - 測試 4x4
-            var game4x4 = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config4x4);
+            var game4x4 = Game.CreateNew(GameTestUtils.Config4x4);
             Assert.AreEqual(PlayerId.Player1, game4x4.GetActivePlayerId());
             Assert.AreEqual(GameStatus.None, game4x4.GetStatus());
             Assert.AreEqual(16, game4x4.GetBoard().Length);
 
             // Act - 測試 6x6
-            var game6x6 = GameTestUtils.CreateGameWithGameLevelConfig(GameLevelConfigTable.Config6x6);
+            var game6x6 = Game.CreateNew(GameTestUtils.Config6x6);
             Assert.AreEqual(PlayerId.Player1, game6x6.GetActivePlayerId());
             Assert.AreEqual(GameStatus.None, game6x6.GetStatus());
             Assert.AreEqual(36, game6x6.GetBoard().Length);
@@ -197,7 +182,7 @@ namespace MGSP.TrackPiece.Tests.Domain
                 fullBoard[i] = (i % 2 == 0) ? PlayerId.Player1 : PlayerId.Player2;
             }
 
-            var customGame = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, fullBoard, PlayerId.Player1);
+            var customGame = Game.CreateCustom(GameTestUtils.Config4x4, fullBoard, PlayerId.Player1);
 
             // Act
             var interactablePositions = customGame.GetInteractablePositions();
@@ -263,7 +248,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             initialBoard[0] = PlayerId.Player1;
             initialBoard[1] = PlayerId.Player2;
 
-            game = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, initialBoard, PlayerId.Player1);
+            var game = Game.CreateCustom(GameTestUtils.Config4x4, initialBoard, PlayerId.Player1);
 
             // Act
             game.Shift();
@@ -284,7 +269,7 @@ namespace MGSP.TrackPiece.Tests.Domain
             winningBoard[2] = PlayerId.Player1;
             winningBoard[3] = PlayerId.Player1;
 
-            game = GameTestUtils.CreateGameCustomWithGameLevelConfig(GameLevelConfigTable.Config4x4, winningBoard, PlayerId.Player1);
+            var game = Game.CreateCustom(GameTestUtils.Config4x4, winningBoard, PlayerId.Player1);
 
             // Act
             game.Evaluate();

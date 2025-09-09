@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using MGSP.TrackPiece.Services;
 using MGSP.TrackPiece.Stores;
 using VContainer;
@@ -17,7 +18,7 @@ namespace MGSP.TrackPiece.App.Presenters
 
         void IPostStartable.PostStart()
         {
-            gamePlayStore.CreateNewGame(GameLevel._4x4);
+            gamePlayStore.CreateNewGame(GameLevel._4x4).Forget();
         }
     }
 }

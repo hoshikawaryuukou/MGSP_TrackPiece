@@ -87,6 +87,17 @@ namespace MGSP.TrackPiece.Presentation.StageWidgets
             await UniTask.Yield();
         }
 
+        public void SetCellViewsInteractable(IReadOnlyList<bool> values)
+        {
+            var cellViewCount = cellViews.Count;
+            for (var i = 0; i < cellViewCount; i++)
+            {
+                var cellView = cellViews[i];
+                var value = values[i];
+                cellView.SetInteractable(value);
+            }
+        }
+
         private void ClearCellViews()
         {
             for (var i = 0; i < cellViews.Count; i++)
@@ -108,7 +119,5 @@ namespace MGSP.TrackPiece.Presentation.StageWidgets
 
             pieceUnits.Clear();
         }
-
-
     }
 }

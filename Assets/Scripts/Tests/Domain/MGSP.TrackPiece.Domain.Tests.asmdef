@@ -4,8 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "MGSP.TrackPiece.Domain",
-        "MGSP.TrackPiece.Shared"
+        "MGSP.TrackPiece.Domain"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,14 +1,13 @@
-namespace MGSP.TrackPiece.Shared
-{
-    public static class GameLevelConfigTable
-    {
-        public static readonly GameLevelConfig Config4x4 = Create4x4();
-        public static readonly GameLevelConfig Config6x6 = Create6x6();
+using MGSP.TrackPiece.Domain;
 
-        private static GameLevelConfig Create4x4()
-        {
-            var track = new int[] { 4, 0, 1, 2, 8, 9, 5, 3, 12, 10, 6, 7, 13, 14, 15, 11 };
-            var winningLines = new int[][]
+namespace MGSP.TrackPiece.Tests.Domain
+{
+    public static class GameTestUtils
+    {
+        public readonly static GameConfig Config4x4 = new(
+            4,
+            new int[] { 4, 0, 1, 2, 8, 9, 5, 3, 12, 10, 6, 7, 13, 14, 15, 11 },
+            new int[][]
             {
                 // Horizontal (4 lines)
                 new int[] { 0, 1, 2, 3 },      // Row 1
@@ -25,16 +24,12 @@ namespace MGSP.TrackPiece.Shared
                 // Diagonal (2 lines)
                 new int[] { 0, 5, 10, 15 },    // Main diagonal
                 new int[] { 3, 6, 9, 12 }      // Anti-diagonal
-            };
+            });
 
-            return new GameLevelConfig(4, track, winningLines);
-        }
-
-        private static GameLevelConfig Create6x6()
-        {
-            var track = new int[] { 6, 0, 1, 2, 3, 4, 12, 13, 7, 8, 9, 5, 18, 19, 20, 14, 10, 11, 24, 25, 21, 15, 16, 17, 30, 26, 27, 28, 22, 23, 31, 32, 33, 34, 35, 29 };
-
-            var winningLines = new int[][]
+        public readonly static GameConfig Config6x6 = new(
+            6,
+            new int[] { 6, 0, 1, 2, 3, 4, 12, 13, 7, 8, 9, 5, 18, 19, 20, 14, 10, 11, 24, 25, 21, 15, 16, 17, 30, 26, 27, 28, 22, 23, 31, 32, 33, 34, 35, 29 },
+            new int[][]
             {
                 // Horizontal (6 lines)
                 new int[] { 0, 1, 2, 3, 4, 5 },      // Row 1
@@ -55,9 +50,6 @@ namespace MGSP.TrackPiece.Shared
                 // Diagonal (2 lines)
                 new int[] { 0, 7, 14, 21, 28, 35 },  // Main diagonal
                 new int[] { 5, 10, 15, 20, 25, 30 }, // Anti-diagonal
-            };
-
-            return new GameLevelConfig(6, track, winningLines);
-        }
+            });
     }
 }

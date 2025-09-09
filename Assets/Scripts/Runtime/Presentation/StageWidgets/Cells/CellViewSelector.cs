@@ -10,14 +10,19 @@ namespace MGSP.TrackPiece.Presentation.StageWidgets
 
         public Observable<CellView> CellViewSelected =>
             Observable.EveryUpdate()
-                .Where(_ => Input.GetMouseButtonDown(0))
+                .Where(_ => Input.GetMouseButtonDown(0) && enabled)
                 .Select(_ => GetClickedCell())
                 .Where(cellView => cellView != null);
 
-        private void Awake()
+        void Awake()
         {
             if (mainCamera == null)
                 mainCamera = Camera.main;
+        }
+
+        public void SetInteractable(bool value)
+        {
+            enabled = value;
         }
 
         private CellView GetClickedCell()

@@ -9,7 +9,13 @@ namespace MGSP.TrackPiece.Presentation.StageWidgets
         [SerializeField] private SpriteRenderer spriteRenderer;
 
         public int positionIndex;
+        public bool isInteractable = true;
 
         public Observable<Unit> Clicked => spriteRenderer.OnMouseDownAsObservable();
+
+        public void SetInteractable(bool value)
+        {
+            isInteractable = value;
+        }
     }
 }

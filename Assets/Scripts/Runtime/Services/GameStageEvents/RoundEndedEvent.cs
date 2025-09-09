@@ -7,11 +7,11 @@ namespace MGSP.TrackPiece.Services
         Draw
     }
 
-    public sealed class GameEndedEvent : IGameStageEvent
+    public sealed class RoundEndedEvent : IGameStageEvent
     {
         public GameResult Result { get; }
 
-        public GameEndedEvent(GameResult result)
+        public RoundEndedEvent(GameResult result)
         {
             Result = result;
         }

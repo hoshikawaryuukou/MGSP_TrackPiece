@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using MGSP.TrackPiece.App.Configs;
+using MGSP.TrackPiece.App.Stores;
 using MGSP.TrackPiece.Presentation.UIWidgets;
 using MGSP.TrackPiece.Services;
 using MGSP.TrackPiece.Stores;
@@ -10,33 +11,29 @@ using VContainer.Unity;
 
 namespace MGSP.TrackPiece.App.Presenters
 {
-    public sealed class GameLevelChangePresenter : IInitializable, IDisposable
+    public sealed class GameMenuLevelChangePresenter : IInitializable, IDisposable, IInputBlocker
     {
-        private readonly GameMenuStore gameMenuStore;
-        private readonly GameOptionStore gameOptionStore;
+        private readonly GameUIStateStore uiStateStore;
         private readonly GamePlayStore gamePlayStore;
         private readonly GameMenuView gameMenuView;
-        private readonly ConfirmDialogView confirmDialogModalView;
+        private readonly ConfirmDialogView confirmDialogView;
 
         private readonly CompositeDisposable disposables = new();
 
         [Inject]
-        public GameLevelChangePresenter(GameMenuStore gameMenuStore, GameOptionStore gameOptionStore, GamePlayStore gamePlayStore, GameMenuView gameMenuView, ConfirmDialogView confirmDialogModalView)
+        public GameMenuLevelChangePresenter(GameUIStateStore uiStateStore, GamePlayStore gamePlayStore, GameMenuView gameMenuView, ConfirmDialogView confirmDialogView)
         {
-            this.gameMenuStore = gameMenuStore;
-            this.gameOptionStore = gameOptionStore;
+            this.uiStateStore = uiStateStore;
             this.gamePlayStore = gamePlayStore;
             this.gameMenuView = gameMenuView;
-            this.confirmDialogModalView = confirmDialogModalView;
+            this.confirmDialogView = confirmDialogView;
         }
 
         void IInitializable.Initialize()
         {
-            gameMenuStore.LevelChangeRequested.Subscribe(_ => Show()).AddTo(disposables);
-            gameOptionStore.LevelRP.Subscribe(OnLevelChanged).AddTo(disposables);
+            gamePlayStore.LevelRP.Subscribe(OnLevelChanged).AddTo(disposables);
 
-            gameMenuView.BoardSizeChangeRequested.Subscribe(_ => gameMenuStore.RequestLevelChange()).AddTo(disposables);
-
+            gameMenuView.BoardSizeChangeRequested.Subscribe(_ => Show()).AddTo(disposables);
         }
 
         void IDisposable.Dispose()
@@ -46,7 +43,9 @@ namespace MGSP.TrackPiece.App.Presenters
 
         private void Show()
         {
-            var newSize = gameOptionStore.LevelRP.CurrentValue == GameLevel._4x4 ? GameLevel._6x6 : GameLevel._4x4;
+            uiStateStore.RequestInputBlock(this);
+
+            var newSize = gamePlayStore.LevelRP.CurrentValue == GameLevel._4x4 ? GameLevel._6x6 : GameLevel._4x4;
             var confirmMessage = newSize switch
             {
                 GameLevel._4x4 => GameUIConfig.ConfirmRestartWith4x4Message,
@@ -55,30 +54,30 @@ namespace MGSP.TrackPiece.App.Presenters
             };
 
             var dialogDisposables = new CompositeDisposable();
-            confirmDialogModalView.YesRequested
+            confirmDialogView.YesRequested
                 .Subscribe(_ =>
                 {
-                    confirmDialogModalView.Hide();
+                    confirmDialogView.Hide();
                     dialogDisposables.Dispose();
 
-                    gameOptionStore.SetLevel(newSize);
-                    gamePlayStore.CreateNewGame(newSize);
-                    gamePlayStore.SetInteractable(true);
+                    gamePlayStore.SetLevel(newSize);
+                    gamePlayStore.CreateNewGame(newSize).Forget();
+                    uiStateStore.ReleaseInputBlock(this);
                 })
                 .AddTo(dialogDisposables);
 
-            confirmDialogModalView.NoRequested
+            confirmDialogView.NoRequested
                 .Subscribe(_ =>
                 {
-                    confirmDialogModalView.Hide();
+                    confirmDialogView.Hide();
                     dialogDisposables.Dispose();
-                    gamePlayStore.SetInteractable(true);
+
+                    uiStateStore.ReleaseInputBlock(this);
                 })
                 .AddTo(dialogDisposables);
 
-            gamePlayStore.SetInteractable(false);
-            confirmDialogModalView.SetMessage(confirmMessage);
-            confirmDialogModalView.Show();
+            confirmDialogView.SetMessage(confirmMessage);
+            confirmDialogView.Show();
         }
 
         private void OnLevelChanged(GameLevel level)

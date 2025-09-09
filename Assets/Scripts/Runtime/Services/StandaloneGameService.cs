@@ -1,5 +1,5 @@
+using Cysharp.Threading.Tasks;
 using MGSP.TrackPiece.Domain;
-using MGSP.TrackPiece.Shared;
 using System.Collections.Generic;
 
 namespace MGSP.TrackPiece.Services
@@ -8,26 +8,27 @@ namespace MGSP.TrackPiece.Services
     {
         private Game game = null;
 
-        public IList<IGameStageEvent> CreateNewGame(GameLevel level)
+        public async UniTask<IReadOnlyList<IGameStageEvent>> CreateNewGame(GameLevel level)
         {
-            var levelConfig = level switch
-            {
-                GameLevel._4x4 => GameLevelConfigTable.Config4x4,
-                GameLevel._6x6 => GameLevelConfigTable.Config6x6,
-                _ => throw new System.InvalidOperationException("Unsupported board size."),
-            };
+            // fake async operation
+            await UniTask.Yield();
 
-            var gameConfig = new GameConfig(levelConfig.BoardSizeLength, levelConfig.Track, levelConfig.WinningLines);
+            var levelConfig = GameLevelConfigTable.Table[level];
+            var gameConfig = new GameConfig(levelConfig.BoardSideLength, levelConfig.Track, levelConfig.WinningLines);
             game = Game.CreateNew(gameConfig);
 
-            var events = new List<IGameStageEvent>();
-            events.Add(new GameStartedEvent(level));
-            events.Add(new TurnStartedEvent(GetActiveGamePlayer(game), game.GetInteractablePositions()));
-            return events;
+            return new List<IGameStageEvent>
+            {
+                new RoundStartedEvent(level),
+                new TurnStartedEvent(GetActiveGamePlayer(game), game.GetInteractablePositions())
+            };
         }
 
-        public IList<IGameStageEvent> Place(int positionIndex)
+        public async UniTask<IReadOnlyList<IGameStageEvent>> PlacePiece(int positionIndex)
         {
+            // fake async operation
+            await UniTask.Yield();
+
             var events = new List<IGameStageEvent>();
 
             game.Place(positionIndex);
@@ -44,8 +45,10 @@ namespace MGSP.TrackPiece.Services
             }
             else
             {
-                events.Add(new GameEndedEvent(ConvertResult(status)));
+                events.Add(new RoundEndedEvent(ConvertResult(status)));
+                game = null;
             }
+
             return events;
         }
 

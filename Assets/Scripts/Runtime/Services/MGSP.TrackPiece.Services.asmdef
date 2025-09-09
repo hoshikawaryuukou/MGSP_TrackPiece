@@ -1,9 +1,10 @@
-{
+﻿{
     "name": "MGSP.TrackPiece.Services",
     "rootNamespace": "MGSP.TrackPiece.Services",
     "references": [
+        "GUID:08b38f39e2d9e594389b7a4cf4c2c338",
         "GUID:304192ed7a962174fb5f66ab1b86b703",
-        "GUID:2a1aa97c36f25a54eb8779627dcd7655"
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

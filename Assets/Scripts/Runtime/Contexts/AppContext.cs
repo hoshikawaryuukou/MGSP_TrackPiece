@@ -1,4 +1,6 @@
+using MessagePipe;
 using MGSP.TrackPiece.App.Presenters;
+using MGSP.TrackPiece.App.Stores;
 using MGSP.TrackPiece.Presentation.StageWidgets;
 using MGSP.TrackPiece.Presentation.UIWidgets;
 using MGSP.TrackPiece.Services;
@@ -12,12 +14,14 @@ namespace MGSP.TrackPiece.Contexts
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.RegisterMessagePipe();
+
             builder.RegisterInstance<IGameService>(new StandaloneGameService());
 
+            builder.RegisterInstance(new GameUIStateStore());
             builder.Register<GamePlayStore>(Lifetime.Singleton);
-            builder.RegisterInstance(new GameMenuStore());
-            builder.RegisterInstance(new GameOptionStore());
-
+            builder.Register<GameStageEventEmitter>(Lifetime.Singleton);
+ 
             builder.RegisterComponentInHierarchy<GameInfoView>();
             builder.RegisterComponentInHierarchy<GameMenuView>();
             builder.RegisterComponentInHierarchy<GameResultView>();
@@ -26,10 +30,13 @@ namespace MGSP.TrackPiece.Contexts
             builder.RegisterComponentInHierarchy<CellViewSelector>();
 
             builder.RegisterEntryPoint<AppPresenter>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<GameRestartPresenter>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<GamePlayPresenter>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<GameInfoPresenter>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<GameLevelChangePresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GameMenuLevelChangePresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GameMenuRestartPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GameMenuInfoPresenter>(Lifetime.Singleton);
+
+            builder.RegisterEntryPoint<GamePlayStatusPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GamePlayRoundPresenter>(Lifetime.Singleton);
+            builder.RegisterEntryPoint<GamePlayTrunPresenter>(Lifetime.Singleton);
         }
     }
 }

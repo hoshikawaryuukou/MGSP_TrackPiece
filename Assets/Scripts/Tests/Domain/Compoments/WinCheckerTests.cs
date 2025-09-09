@@ -1,6 +1,5 @@
 using MGSP.TrackPiece.Domain;
 using MGSP.TrackPiece.Domain.Compoments;
-using MGSP.TrackPiece.Shared;
 using NUnit.Framework;
 using System;
 
@@ -15,8 +14,8 @@ namespace MGSP.TrackPiece.Tests.Domain
         [SetUp]
         public void Setup()
         {
-            winChecker4x4 = new WinChecker(GameLevelConfigTable.Config4x4.WinningLines);
-            winChecker6x6 = new WinChecker(GameLevelConfigTable.Config6x6.WinningLines);
+            winChecker4x4 = new WinChecker(GameTestUtils.Config4x4.WinningLines);
+            winChecker6x6 = new WinChecker(GameTestUtils.Config6x6.WinningLines);
         }
 
         [Test]
