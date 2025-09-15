@@ -55,12 +55,12 @@
       "dependencies": {},
       "hash": "a7c6b49a0141a5bff9b1983e38137522ef61977d"
     },
-    "com.miniaturegardenstudio.unigears-commonkit": {
-      "version": "https://github.com/hoshikawaryuukou/MGSU_UniGears.git?path=Assets/CommonKit/Scripts",
+    "com.miniaturegardenstudio.unigears-asmdefkit": {
+      "version": "https://github.com/hoshikawaryuukou/MGSU_UniGears.git?path=Assets/AsmdefKit",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "323087aee867c0431797be4cff8d2d418e891ca4"
+      "hash": "97055f2ed8aa125a8212b080475388b831511b90"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -238,7 +238,7 @@
       }
     },
     "com.unity.web.stripping-tool": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
