@@ -9,7 +9,7 @@
 3. 作為小型遊戲開發的設計實驗案例。  
 
 ## 設計文件
-- [https://github.com/hoshikawaryuukou/MGSD_SingleFeatureApp_DesignGuide](https://github.com/hoshikawaryuukou/MGSD_SingleFeatureApp_DesignGuide/blob/main/Docs/Guide.md)
+- [https://github.com/hoshikawaryuukou/MGSD_SingleFeatureApp_DesignGuide](https://github.com/hoshikawaryuukou/MGSD_SingleFeatureApp_DesignGuide)
 
 ## 遊戲介紹
 
