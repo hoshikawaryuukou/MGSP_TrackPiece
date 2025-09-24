@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using MGSP.TrackPiece.Domain;
+using MGSP.TrackPiece.Services.Events;
 using System.Collections.Generic;
 
 namespace MGSP.TrackPiece.Services

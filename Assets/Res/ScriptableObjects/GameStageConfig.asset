@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8bcfc36ec01bcb34491862f626c2eae2, type: 3}
   m_Name: GameStageConfig
-  m_EditorClassIdentifier: MGSP.TrackPiece.Presentation::MGSP.TrackPiece.Presentation.GameStageConfig
+  m_EditorClassIdentifier: MGSP.TrackPiece.Presentation::MGSP.TrackPiece.Presentation.Views.StageWidgets.GameStageConfig
   __alchemySerializationData_MGSP_TrackPiece_Presentation_GameStageConfig:
     stageInfoTable:
       isCreated: 1

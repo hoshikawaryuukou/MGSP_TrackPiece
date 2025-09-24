@@ -1,10 +1,10 @@
 using MessagePipe;
-using MGSP.TrackPiece.App.Presenters;
-using MGSP.TrackPiece.App.Stores;
-using MGSP.TrackPiece.Presentation.StageWidgets;
-using MGSP.TrackPiece.Presentation.UIWidgets;
+using MGSP.TrackPiece.Presentation.Presenters;
+using MGSP.TrackPiece.Presentation.Stores;
+using MGSP.TrackPiece.Presentation.Views.StageWidgets;
+using MGSP.TrackPiece.Presentation.Views.UIWidgets;
 using MGSP.TrackPiece.Services;
-using MGSP.TrackPiece.Stores;
+using MGSP.TrackPiece.Services.Events;
 using VContainer;
 using VContainer.Unity;
 
